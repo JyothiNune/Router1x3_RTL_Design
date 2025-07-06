@@ -1,36 +1,21 @@
-# ==========================================================
-# Gitignore for Vivado / VHDL / Verilog Projects
-# ==========================================================
-
-# Simulation outputs
+# Ignore simulation outputs and logs
 *.vcd
+*.wdb
 *.log
 *.out
 *.jou
-*.wdb
 *.pb
 
-# Editor backups
-*~
-*.swp
-*.swo
+# Ignore generated images/waveforms
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.svg
 
-# Vivado / ModelSim / Tool-specific files and folders
+# Ignore Vivado / tool-specific folders
 .sim/
 *.runs/
 *.cache/
 *.tmp/
-project.xpr
-project.xpr.lock
-project.srcs/
-
-# Vivado HLS specific
-.apc/
-.autopilot/
-hls_log*
-
-# Xilinx SDK / Vitis
-.sdk/
-*.sdk/
-.Xil/
-*_bsp/
+*.xpr
