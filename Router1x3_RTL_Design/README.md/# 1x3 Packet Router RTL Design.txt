@@ -1,0 +1,115 @@
+# 1x3 Packet Router RTL Design
+
+## 📝 Overview
+
+This project is a Verilog-based RTL implementation of a 1-to-3 packet router. The design is fully synchronous and forwards incoming data packets to one of three output ports based on a 2-bit address in the packet header.
+
+This project was designed using fundamental digital design components to create a robust and modular system.
+
+**Key Components Used:**
+- **Control Logic:** A Finite State Machine (FSM) to orchestrate the routing process.
+- **Buffering:** Synchronous First-In, First-Out (FIFO) buffers for each output port.
+- **Synchronization:** A 2-Flip-Flop synchronizer for the asynchronous reset.
+- **Top-Level Integration:** A top module that connects all components into a cohesive unit.
+
+---
+
+## 📦 Packet Format
+
+The router processes a simple 8-bit packet. The packet's structure is fundamental to the router's operation, with the header dictating the packet's destination.
+
+| Field          | Width (bits) | Description                                         |
+|----------------|--------------|-----------------------------------------------------|
+| **Header**     | 2            | Destination Address (`00`, `01`, `10`)                |
+| **Payload**    | 6            | Packet data content                                 |
+| **Total Width**| **8**        | The width of the `data_in` port                     |
+
+*Note: An address of `11` is considered invalid. The router is designed to drop packets with this address.*
+
+---
+
+## 🏗️ Architecture and Design
+
+The router's design can be understood from two perspectives: its external interface and its internal architecture.
+
+### Top-Level View
+The diagram below shows the router as a single module, defining its external inputs and outputs. This represents how the router interfaces with other components in a larger system.
+
+**Top Module Diagram:**
+<!-- Make sure this filename matches your actual file -->
+![Top Module Diagram](images/router_top_block_diagram.png)
+
+### Internal System Architecture
+Internally, the architecture is built around a central FSM controller and three dedicated FIFO buffers for the output ports. This buffered approach prevents data loss when an output port is temporarily unable to accept data.
+
+The diagram below illustrates the complete data and control flow within the router.
+
+**System Architecture Diagram:**
+<!-- Make sure this filename matches your actual file -->
+![System Architecture Diagram](images/system_architecture.png)
+
+#### Control Logic
+The router's behavior is governed by a **Finite State Machine (FSM)**. It sequences through states to ensure reliable packet delivery:
+-   **IDLE**: The FSM waits for a new, valid packet to arrive.
+-   **READ_ADDR**: Upon packet arrival, it captures the 2-bit destination address from the header.
+-   **PAYLOAD**: The FSM asserts the `write_enable` signal for the correct destination FIFO and routes the packet payload for storage.
+
+---
+
+## 📂 Project Structure
+
+The repository is organized into distinct directories for RTL source code, simulation files, and documentation assets.
+Use code with caution.
+Markdown
+├── .gitignore # Specifies which files Git should ignore
+├── README.md # The main documentation file
+├── images/
+│ ├── router_top_block_diagram.png
+│ └── system_architecture.png
+├── rtl/ # Contains all synthesizable Verilog source files
+│ ├── router_top.v
+│ ├── router_fsm.v
+│ ├── router_fifo.v
+│ ├── router_register.v
+│ └── router_synchronizer.v
+├── tb/ # Contains all testbench files for verification
+│ ├── router_top_tb.v
+│ ├── router_fsm_tb.v
+│ ├── router_fifo_tb.v
+│ ├── router_register_tb.v
+│ └── router_synchronizer_tb.v
+└── sim/ # Directory for simulation scripts and outputs (e.g., VCD files)Generated code
+---
+
+## 🛠️ How to Run Simulation
+
+### Prerequisites
+-   A Verilog simulator (e.g., Icarus Verilog, ModelSim, Vivado).
+-   A waveform viewer (e.g., GTKWave).
+
+### Simulation Steps (using Icarus Verilog & GTKWave)
+
+1.  **Compile the Verilog files:**
+    Open your terminal or command prompt and navigate to the project's root directory. Run the following command to compile all RTL files along with the testbench.
+    ```sh
+    iverilog -o sim/router.vvp sim/tb_router.v rtl/*.v
+    ```
+
+2.  **Run the simulation:**
+    Execute the compiled design.
+    ```sh
+    vvp sim/router.vvp
+    ```
+
+3.  **View the waveforms:**
+    The testbench is configured to generate a waveform dump file (`tb_router.vcd`) inside the `sim/` directory. Open it with a waveform viewer like GTKWave.
+    ```sh
+    gtkwave sim/tb_router.vcd
+    ```
+
+### Testbench Verification Scenarios
+The testbench (`tb_router.v`) is designed to verify the following key functionalities:
+-   ✅ Routing a packet to each of the three valid output ports (`0`, `1`, and `2`).
+-   ✅ Sending back-to-back packets to different ports to test continuous operation.
+-   ✅ Testing the FIFO `full` condition by de-asserting an output `ready` signal.
+-   ✅ Testing the invalid address case (`11`) to ensure the packet is correctly dropped
